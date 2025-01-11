@@ -7,7 +7,7 @@ A backend for a blogging platform built with Node.js, TypeScript, and MongoDB. T
 
 ## Features
 - **User Roles**:
-  - Admin can block users and delete any blogs.
+  - Admin can block users and delete any blog.
   - Users can register, log in, and perform CRUD operations on their own blogs.
 - **Authentication & Authorization**:
   - JWT-based secure login.
