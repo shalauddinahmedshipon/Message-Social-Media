@@ -3,7 +3,7 @@
 A backend for a blogging platform built with Node.js, TypeScript, and MongoDB. This project supports secure user authentication, role-based access control, and a public API for reading blogs with search, sort, and filter functionalities. It also provides users and admins with different sets of permissions and CRUD capabilities for managing blogs.
 
 ## Live Deployment
-**URL**: [[Insert Live Link Here]](https://says-blog-website-node.vercel.app/)
+**URL**: [[https://says-blog-website-node.vercel.app/]]
 
 ## Features
 - **User Roles**:
