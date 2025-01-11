@@ -10,9 +10,42 @@ return result;
 }
 
 
-const getAllBlogsFromDB=async()=>{
-const result = await Blog.find().populate('author');
-return result;
+const getAllBlogsFromDB=async(query:Record<string,unknown>)=>{
+      //  search operation 
+let search='';
+if(query?.search){
+search=query?.search as string
+}
+
+const searchableFields=["title","content"];
+const searchQuery =Blog.find(
+  {
+    $or:searchableFields.map((field)=>({
+    [field]:{$regex:search,$options:'i'}
+    }))
+  }
+);
+
+
+         //  filter operation
+let filter = {};
+if(query?.filter){
+  filter={author:query?.filter} 
+}
+const filterQuery = searchQuery.find(filter);
+
+        //  sort operation 
+let sortStr = "-createdAt";
+if(query?.sortBy && query?.sortOrder){
+ const sortBy=query?.sortBy;
+ const sortOrder=query?.sortOrder;
+ sortStr=`${sortOrder==='desc'?'-':''}${sortBy}`;
+}
+
+const sortQuery = await filterQuery.sort(sortStr);
+
+
+return sortQuery;
 }
 
 

@@ -24,7 +24,7 @@ async(req,res)=>{
 )
 const getAllBlogs=catchAsync(
 async(req,res)=>{
-  const result = await blogService.getAllBlogsFromDB();
+  const result = await blogService.getAllBlogsFromDB(req.query);
 
   const response = result?.map((blog)=>(
     {
