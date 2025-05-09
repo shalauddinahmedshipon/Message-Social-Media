@@ -36,8 +36,21 @@ const updateProfile = catchAsync(async (req, res) => {
   });
 });
 
+const requestRoleUpgrade = catchAsync(async (req, res) => {
+  const userId = req.user.id;
+  const { requestedRole } = req.body;
+const result = await userService.requestRoleUpgrade(userId,requestedRole)
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    message: 'Role upgrade request submitted',
+    data:result,
+  });
+});
+
 export const userController={
   getAllUser,
   getSingleUser,
-  updateProfile
+  updateProfile,
+  requestRoleUpgrade
 }

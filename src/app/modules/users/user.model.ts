@@ -78,6 +78,11 @@ const userSchema= new Schema<IUser,UserModel>(
     biography: {
       type: String,
     },
+    requestedRole: {
+      type: String,
+      enum: ['Scholar'],
+      default: null,
+    }
   },
   {
     timestamps: true, 
@@ -96,6 +101,9 @@ userSchema.pre('save', function (next) {
 
 //hash password before save into DB
 userSchema.pre('save', async function (next) {
+  if (!this.isNew) {
+    return next(); 
+  }
   const email = this.email;
   const isExistUser = await User.findOne({ email });
   if (isExistUser) {

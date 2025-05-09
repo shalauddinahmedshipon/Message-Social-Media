@@ -3,12 +3,13 @@ import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { adminService } from './admin.service';
 
-const createAdmin = catchAsync(async (req, res) => {
-  const payload = req.body;
-  const result = await adminService.createAdminIntoDB(payload);
+
+
+const getRoleRequests = catchAsync(async (req, res) => {
+  const result = await adminService.getRoleRequestsFromDB();
   sendResponse(res, {
-    message: 'Admin Created Successfully',
     statusCode: StatusCodes.OK,
+    message: 'Pending role requests retrieved',
     data: result,
   });
 });
@@ -41,6 +42,15 @@ const updateUserRole = catchAsync(async (req, res) => {
   });
 });
 
+const approveRoleRequest = catchAsync(async (req, res) => {
+  const {id} = req.params;
+ await adminService.approveRoleRequest(id);
+  sendResponse(res, {
+    message: 'User Role approved successfully',
+    statusCode: StatusCodes.OK
+  });
+});
+
 const deleteUser = catchAsync(async (req, res) => {
   const { id } = req.params;
   await adminService.deleteUserFromDB(id);
@@ -53,7 +63,8 @@ const deleteUser = catchAsync(async (req, res) => {
 export const adminController = {
   blockedUser,
   deleteBlog,
-  createAdmin,
   deleteUser,
-  updateUserRole 
+  updateUserRole,
+  approveRoleRequest,
+  getRoleRequests
 };

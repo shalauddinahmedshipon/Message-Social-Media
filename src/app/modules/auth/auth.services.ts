@@ -15,6 +15,9 @@ const registerUserIntoDB = async (payload: IUser) => {
   if (await User.isUserExistByPhone(payload?.phone as string)) {
     throw new AppError(StatusCodes.BAD_REQUEST, 'The phone number is already exist!');
   }
+  if(payload.role!=="User"){
+    throw new AppError(StatusCodes.BAD_REQUEST,"Only user role is allowed")
+  }
   const user = await User.create(payload);
   
   const jwtPayload = {

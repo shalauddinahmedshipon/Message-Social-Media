@@ -2,18 +2,14 @@ import { StatusCodes } from 'http-status-codes';
 import AppError from '../../error/AppError';
 import { User } from '../users/user.model';
 import { Blog } from '../blogs/blog.model';
-import { USER_ROLE } from '../users/user.constant';
-import { IUser } from '../users/user.interface';
 
-const createAdminIntoDB = async (payload: IUser) => {
-  const isAdminExist = await User.findOne({ role: USER_ROLE.Admin });
-  if (isAdminExist) {
-    throw new AppError(StatusCodes.CONFLICT, 'Admin is already Exist!');
-  }
-  payload.role = 'Admin';
-  const result = await User.create(payload);
-  return result;
+const getRoleRequestsFromDB = async () => {
+const result = await User.find({ requestedRole: { $ne: null } });
+return result;
 };
+
+
+
 
 const blockedUserFromDB = async (userId: string) => {
   const isUserExist = await User.findById(userId);
@@ -63,10 +59,27 @@ const deleteUserFromDB = async (userId: string) => {
   return result;
 };
 
+const approveRoleRequest = async(userId:string)=>{
+  const user = await User.findById(userId);
+  if (!user) throw new AppError(StatusCodes.NOT_FOUND, 'User not found');
+
+  if (user.requestedRole !== 'Scholar') {
+    throw new AppError(StatusCodes.BAD_REQUEST, 'No Scholar request to approve');
+  }
+
+  user.role = 'Scholar';
+  user.requestedRole = null;
+  await user.save();
+  return 
+}
+
+
+
 export const adminService = {
   blockedUserFromDB,
   deleteBlogFromDB,
-  createAdminIntoDB,
   deleteUserFromDB,
-  updateUserRoleFromDB 
+  updateUserRoleFromDB,
+  approveRoleRequest,
+  getRoleRequestsFromDB
 };

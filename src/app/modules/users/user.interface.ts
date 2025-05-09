@@ -22,6 +22,7 @@ export interface IUser {
   passwordChangedAt?: Date;
   createdAt?: Date;
   updatedAt?: Date;
+  requestedRole:null|string;
 }
 
 

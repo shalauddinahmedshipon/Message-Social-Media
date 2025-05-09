@@ -15,6 +15,29 @@ const getSingleUserFromDB = async (id: string) => {
   return result;
 };
 
+
+const requestRoleUpgrade=async(userId:string,requestedRole:string)=>{
+  const isUserExist=await User.findById(userId);
+  if(!isUserExist){
+    throw new AppError(StatusCodes.NOT_FOUND, 'User not found');
+  }
+  if(isUserExist.religion!=="muslim"){
+    throw new AppError(StatusCodes.BAD_REQUEST, 'Only Muslim can be sent Scholar Request!');
+  }
+  if (requestedRole !== 'Scholar') {
+    throw new AppError(StatusCodes.BAD_REQUEST, 'Only Scholar role can be requested');
+  }
+  const result = await User.findByIdAndUpdate(
+    userId,
+    { requestedRole: 'Scholar' },
+    { new: true }
+  );
+return result;
+}
+
+
+
+
 const updateUserProfileInFromDB=async(userId:string,updateData:Partial<IUser>)=>{
   const user = await User.findById(userId);
 
@@ -47,5 +70,6 @@ const updateUserProfileInFromDB=async(userId:string,updateData:Partial<IUser>)=>
 export const userService ={
   updateUserProfileInFromDB,
   getUserAllFromDB,
-  getSingleUserFromDB
+  getSingleUserFromDB,
+  requestRoleUpgrade
 }

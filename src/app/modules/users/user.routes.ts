@@ -16,6 +16,8 @@ router.get(
   userController.getSingleUser,
 );
 
+router.post('/request-role-upgrade',auth(USER_ROLE.User),userController.requestRoleUpgrade)
+
 router.patch(
   '/:id',
   auth(USER_ROLE.Admin,USER_ROLE.User,USER_ROLE.Scholar),
