@@ -3,10 +3,10 @@ import bcrypt from 'bcrypt';
 import config from '../../config';
 import AppError from '../../error/AppError';
 import { StatusCodes } from 'http-status-codes';
-import { IUser } from './user.interface';
+import { IUser, UserModel } from './user.interface';
 import { countries } from './user.constant';
 
-const userSchema= new Schema<IUser>(
+const userSchema= new Schema<IUser,UserModel>(
   {
     name: {
       type: String,
@@ -39,8 +39,8 @@ const userSchema= new Schema<IUser>(
     },
     role: {
       type: String,
-      enum: ['user', 'scholar', 'admin'],
-      default: 'user',
+      enum: ['User', 'Scholar', 'Admin'],
+      default: 'User',
     },
     gender: {
       type: String,
@@ -111,4 +111,30 @@ userSchema.post('save', function (doc, next) {
   next();
 });
 
-export const User = model<IUser>('User', userSchema);
+
+
+userSchema.statics.isUserExistByEmail = async function (email: string) {
+  return await User.findOne({ email }).select("+password");
+};
+
+userSchema.statics.isUserExistByPhone = async function (phone: string) {
+  return await User.findOne({ phone }).select("+password");
+};
+
+
+userSchema.statics.isPasswordMatch = async function (
+  plainTextPassword: string,
+  hashPassword: string
+) {
+  return await bcrypt.compare(plainTextPassword, hashPassword);
+};
+userSchema.statics.isJWTIssuedBeforePasswordChanged = async function (
+  passwordChangedTimestamp: Date,
+  jwtIssuedTimestamp: number
+) {
+  const passwordChangedTime = new Date(passwordChangedTimestamp).getTime() / 1000;
+  return passwordChangedTime > jwtIssuedTimestamp;
+};
+
+
+export const User = model<IUser,UserModel>('User', userSchema);

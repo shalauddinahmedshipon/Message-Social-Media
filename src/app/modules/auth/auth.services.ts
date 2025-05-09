@@ -1,53 +1,128 @@
 import { StatusCodes } from 'http-status-codes';
 import AppError from '../../error/AppError';
-import { TUser } from '../users/user.interface';
 import { User } from '../users/user.model';
 import { TLogin } from './auth.interface';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import config from '../../config';
+import { IUser } from '../users/user.interface';
+import { createToken } from './auth.utils';
+import { JwtPayload } from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 
-const registerUserIntoDB = async (payload: TUser) => {
-  const result = await User.create(payload);
-  return result;
-};
-
-const loginUser = async (payload: TLogin) => {
-  const user = await User.findOne({
-    email: payload.email,
-  }).select('+password');
-
-  if (!user) {
-    throw new AppError(StatusCodes.NOT_FOUND, 'User is not found');
+const registerUserIntoDB = async (payload: IUser) => {
+  if (await User.isUserExistByEmail(payload?.email)) {
+    throw new AppError(StatusCodes.BAD_REQUEST, 'The email is already exist!');
   }
-  if (user?.isBlocked)
-    throw new AppError(StatusCodes.FORBIDDEN, 'The user is blocked!');
+  if (await User.isUserExistByPhone(payload?.phone as string)) {
+    throw new AppError(StatusCodes.BAD_REQUEST, 'The phone number is already exist!');
+  }
+  const user = await User.create(payload);
+  
+  const jwtPayload = {
+    email: user.email,
+    phone:user.phone,
+    role: user.role!,
+    id: user._id,
+  };
 
-  const isPasswordMatch = await bcrypt.compare(
-    payload?.password,
-    user?.password,
+  const accessToken = createToken(
+    jwtPayload,
+    config.jwt_access_secret as string,
+    config.jwt_access_expireIn as string
   );
 
-  if (!isPasswordMatch) {
-    throw new AppError(StatusCodes.UNAUTHORIZED, 'Invalid credentials!');
-  }
-
-  const jwtPayload = {
-    _id: user._id,
-    email: user.email,
-    role: user.role,
-  };
-
-  const token = jwt.sign(jwtPayload, config.jwt_access_secret as string, {
-    expiresIn: config.jwt_access_expireIn,
-  });
-
   return {
-    token,
+    user,
+    accessToken,
   };
 };
+
+
+
+const loginUser = async (payload: TLogin) => {
+  const user = await User.findOne({$or:[{email:payload?.email},{phone:payload?.phone}]}).select('+password');
+  
+  if(!user){
+    throw new AppError(StatusCodes.NOT_FOUND, 'User does not Exist');
+  }  
+  
+  if (user.isDeleted) {
+      throw new AppError(StatusCodes.NOT_FOUND, 'User does not Exist');
+    }
+  if (user.isBlocked) {
+      throw new AppError(StatusCodes.NOT_FOUND, 'User is Blocked!');
+    }
+    
+  if (!(await User.isPasswordMatch(payload?.password, user?.password))) {
+      throw new AppError(StatusCodes.FORBIDDEN, "Wrong Password!");
+    }
+
+    const jwtPayload = {
+      phone:user.phone,
+      email: user.email,
+      role: user.role!,
+      id: user._id,
+    };
+
+    const accessToken = createToken(
+      jwtPayload,
+      config.jwt_access_secret as string,
+      config.jwt_access_expireIn as string
+    );
+  
+    return {
+      accessToken,
+    };
+  };
+
+
+  const changePasswordIntoDB = async (
+    userData: JwtPayload,
+    payload: {
+      confirmPassword: string;
+      newPassword: string;
+      oldPassword: string;
+    }
+  ) => {
+    const isUserExist = await User.isUserExistByEmail(userData?.email);
+    if (!isUserExist) {
+      throw new AppError(StatusCodes.NOT_FOUND, "User is not Exist");
+    }
+    if (isUserExist.isDeleted === true) {
+      throw new AppError(StatusCodes.NOT_FOUND, "User does not Exist");
+    }
+    if (isUserExist.isBlocked) {
+      throw new AppError(StatusCodes.NOT_FOUND, 'User is Blocked!');
+    }
+    
+    if (!(await User.isPasswordMatch(payload?.oldPassword, isUserExist?.password))) {
+      throw new AppError(StatusCodes.FORBIDDEN, "Wrong Password!");
+    }
+  
+    if (payload?.newPassword !== payload?.confirmPassword) {
+      throw new AppError(StatusCodes.BAD_REQUEST, "New Password and Confirm Password is not Match!");
+    }
+  
+    const updatedPassword = await bcrypt.hash(
+      payload?.newPassword as string,
+      Number(config.bcrypt_solt)
+    );
+  
+    await User.findOneAndUpdate(
+      { email: userData?.email, role: userData?.role },
+      {
+        $set: {
+          password: updatedPassword,
+          passwordChangedAt: new Date(),
+        },
+      },
+      { new: true }
+    );
+  
+    return null;
+  };
 
 export const authService = {
   registerUserIntoDB,
   loginUser,
+  changePasswordIntoDB
 };

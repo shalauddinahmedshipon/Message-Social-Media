@@ -1,7 +1,7 @@
 export const USER_ROLE = {
-  admin: 'admin',
-  user: 'user',
-  scholar:"scholar"
+  Admin: 'Admin',
+  User: 'User',
+  Scholar:"Scholar"
 } as const;
 
 export const countries = [

@@ -14,8 +14,8 @@ const createAdmin = catchAsync(async (req, res) => {
 });
 
 const blockedUser = catchAsync(async (req, res) => {
-  const { userId } = req.params;
-  await adminService.blockedUserFromDB(userId);
+  const { id } = req.params;
+  await adminService.blockedUserFromDB(id);
   sendResponse(res, {
     message: 'User blocked successfully',
     statusCode: StatusCodes.OK,
@@ -31,8 +31,29 @@ const deleteBlog = catchAsync(async (req, res) => {
   });
 });
 
+const updateUserRole = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const { role } = req.body;
+  await adminService.updateUserRoleFromDB(id,role);
+  sendResponse(res, {
+    message: 'User Role is updated successfully',
+    statusCode: StatusCodes.OK,
+  });
+});
+
+const deleteUser = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  await adminService.deleteUserFromDB(id);
+  sendResponse(res, {
+    message: 'User deleted successfully',
+    statusCode: StatusCodes.OK,
+  });
+});
+
 export const adminController = {
   blockedUser,
   deleteBlog,
   createAdmin,
+  deleteUser,
+  updateUserRole 
 };

@@ -1,6 +1,6 @@
 import { USER_ROLE } from './user.constant';
 
-import { Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 export interface IUser {
   _id: Types.ObjectId;
@@ -10,7 +10,7 @@ export interface IUser {
   password:string;
   dateOfBirth: Date;
   religion: 'muslim' | 'non-muslim';
-  role: 'user' | 'scholar' | 'admin';
+  role: 'User' | 'Scholar' | 'Admin';
   gender: 'male' | 'female';
   profileImageUrl?: string; 
   isDeleted: boolean; 
@@ -19,8 +19,20 @@ export interface IUser {
   following: Types.ObjectId[];
   country: string;
   biography: string;
+  passwordChangedAt?: Date;
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+
+export interface UserModel extends Model<IUser> {
+  isUserExistByEmail(email: string): Promise<IUser>;
+  isUserExistByPhone(phone: string): Promise<IUser>;
+  isPasswordMatch(plainTextPassword: string, hashPassword: string): Promise<boolean>;
+  isJWTIssuedBeforePasswordChanged(
+    passwordChangedTimestamp: Date,
+    jwtIssuedTimestamp: number
+  ): boolean;
 }
 
 
