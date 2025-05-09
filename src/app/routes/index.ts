@@ -1,26 +1,25 @@
-import { Router } from "express";
-import { authRoutes } from "../modules/auth/auth.route";
-import { blogRoutes } from "../modules/blogs/blog.route";
-import { adminRoutes } from "../modules/admin/admin.route";
+import { Router } from 'express';
+import { authRoutes } from '../modules/auth/auth.route';
+import { blogRoutes } from '../modules/blogs/blog.route';
+import { adminRoutes } from '../modules/admin/admin.route';
 
 const router = Router();
 
-const moduleRoutes=[
+const moduleRoutes = [
   {
-    path:"/admin",
-    route:adminRoutes
+    path: '/admin',
+    route: adminRoutes,
   },
   {
-    path:"/auth",
-    route:authRoutes
+    path: '/auth',
+    route: authRoutes,
   },
   {
-    path:"/blogs",
-    route:blogRoutes
+    path: '/blogs',
+    route: blogRoutes,
   },
-]
+];
 
-moduleRoutes.forEach((route)=>
-router.use(route.path,route.route))
+moduleRoutes.forEach((route) => router.use(route.path, route.route));
 
 export default router;
