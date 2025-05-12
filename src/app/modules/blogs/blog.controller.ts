@@ -7,32 +7,28 @@ const createBlog = catchAsync(async (req, res) => {
   const { _id } = req.user;
   const payload = req.body;
   payload.author = _id;
-  const result = await blogService.createBlogIntoDB(payload);
+  const result = await blogService.createBlog(payload);
   sendResponse(res, {
     message: 'Blog created successfully',
     statusCode: StatusCodes.CREATED,
-    data: {
-      _id: result._id,
-      title: result.title,
-      content: result.content,
-      author: result.author,
-    },
+    data: result
   });
 });
 const getAllBlogs = catchAsync(async (req, res) => {
-  const result = await blogService.getAllBlogsFromDB(req.query);
-
-  const response = result?.map((blog) => ({
-    _id: blog._id,
-    title: blog?.title,
-    content: blog?.content,
-    author: blog?.author,
-  }));
-
+  const result = await blogService.getAllBlogs();
   sendResponse(res, {
     message: 'Blogs fetched successfully',
     statusCode: StatusCodes.OK,
-    data: response,
+    data: result
+  });
+});
+
+const getSingleBlog= catchAsync(async (req, res) => {
+  const result = await blogService.getSingleBlog(req.params.id);
+  sendResponse(res, {
+    message: 'Blog fetched successfully',
+    statusCode: StatusCodes.OK,
+    data: result
   });
 });
 
@@ -41,7 +37,7 @@ const updateBlog = catchAsync(async (req, res) => {
   const { _id } = req.user;
   const payload = req.body;
   payload.author = _id;
-  const result = await blogService.updateBlogFromDB(id, payload, _id);
+  const result = await blogService.updateBlog(id, payload, _id);
   sendResponse(res, {
     message: 'Blog updated successfully',
     statusCode: StatusCodes.OK,
@@ -57,16 +53,18 @@ const updateBlog = catchAsync(async (req, res) => {
 const deleteBlog = catchAsync(async (req, res) => {
   const { id } = req.params;
   const { _id } = req.user;
-  await blogService.deleteBlogFromDB(id, _id);
+  await blogService.deleteBlog(id, _id);
   sendResponse(res, {
     message: 'Blog deleted successfully',
     statusCode: StatusCodes.OK,
   });
 });
 
+
 export const blogController = {
   createBlog,
   updateBlog,
   deleteBlog,
   getAllBlogs,
+   getSingleBlog
 };

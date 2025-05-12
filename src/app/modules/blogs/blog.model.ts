@@ -1,28 +1,53 @@
-import mongoose, { model, Schema } from 'mongoose';
-import { TBlog } from './blog.interface';
+import { Schema, model } from 'mongoose';
+import { IBlog } from './blog.interface';
 
-const blogSchema = new Schema<TBlog>(
+const blogSchema = new Schema<IBlog>(
   {
     title: {
       type: String,
       required: true,
+      trim: true,
     },
     content: {
       type: String,
       required: true,
     },
+    thumbnailUrl: {
+      type: String,
+    },
+    category: {
+      type: Schema.Types.ObjectId,
+      ref: 'Category',
+      required: true,
+    },
     author: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      type: Schema.Types.ObjectId,
+      ref: 'User'
     },
     isPublished: {
       type: Boolean,
-      default: true,
+      default: false,
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    likes: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
+    comments: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Comment',
+      },
+    ],
   },
   {
     timestamps: true,
-  },
+  }
 );
 
-export const Blog = model<TBlog>('Blog', blogSchema);
+export const Blog = model<IBlog>('Blog', blogSchema);

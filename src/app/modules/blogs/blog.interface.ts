@@ -1,8 +1,15 @@
+
+
 import { Types } from 'mongoose';
 
-export type TBlog = {
+export interface IBlog {
   title: string;
   content: string;
-  author: Types.ObjectId;
+  thumbnailUrl?: string;
+  category: Types.ObjectId; 
+  author: Types.ObjectId; 
   isPublished: boolean;
-};
+  isDeleted:boolean;
+  likes?: Types.ObjectId[]; 
+  comments?: Types.ObjectId[]; 
+}
