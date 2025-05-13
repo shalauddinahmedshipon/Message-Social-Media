@@ -12,6 +12,7 @@ router.post(
   validateRequest(blogValidation.createBlogValidationSchema),
   blogController.createBlog,
 );
+
 router.get('/', blogController.getAllBlogs);
 router.get('/:id', blogController.getSingleBlog);
 router.patch(

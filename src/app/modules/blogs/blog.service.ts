@@ -75,7 +75,7 @@ const getSingleBlog = async (id: string) => {
   if(!isBlogExist){
     throw new AppError(StatusCodes.BAD_REQUEST,"The Blog does not exist")
   }
-  return 
+  return isBlogExist
 };
 
 const updateBlog = async (
@@ -83,6 +83,7 @@ const updateBlog = async (
   payload: Partial<IBlog>,
   userId: string,
 ) => {
+  console.log(userId)
   const isBlogExist = await Blog.findById(blogId);
   if (!isBlogExist) {
     throw new AppError(StatusCodes.NOT_FOUND, 'The blog can not found');

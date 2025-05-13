@@ -4,9 +4,9 @@ import sendResponse from '../../utils/sendResponse';
 import { blogService } from './blog.service';
 
 const createBlog = catchAsync(async (req, res) => {
-  const { _id } = req.user;
+  const { id } = req.user;
   const payload = req.body;
-  payload.author = _id;
+  payload.author = id;
   const result = await blogService.createBlog(payload);
   sendResponse(res, {
     message: 'Blog created successfully',
@@ -33,30 +33,24 @@ const getSingleBlog= catchAsync(async (req, res) => {
 });
 
 const updateBlog = catchAsync(async (req, res) => {
-  const { id } = req.params;
-  const { _id } = req.user;
+  const { id } = req.user;
   const payload = req.body;
-  payload.author = _id;
-  const result = await blogService.updateBlog(id, payload, _id);
+  payload.author = id;
+  const result = await blogService.updateBlog(req.params.id, payload, id);
   sendResponse(res, {
     message: 'Blog updated successfully',
     statusCode: StatusCodes.OK,
-    data: {
-      _id: result?._id,
-      title: result?.title,
-      content: result?.content,
-      author: result?.author,
-    },
+    data: result
   });
 });
 
 const deleteBlog = catchAsync(async (req, res) => {
   const { id } = req.params;
-  const { _id } = req.user;
-  await blogService.deleteBlog(id, _id);
+ const result= await blogService.deleteBlog(id,req.user.id);
   sendResponse(res, {
     message: 'Blog deleted successfully',
     statusCode: StatusCodes.OK,
+    data:result
   });
 });
 
@@ -66,5 +60,5 @@ export const blogController = {
   updateBlog,
   deleteBlog,
   getAllBlogs,
-   getSingleBlog
+  getSingleBlog
 };
