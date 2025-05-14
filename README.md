@@ -1,4 +1,4 @@
-# Says Blog Website 2025
+# Message Social Media Website 2025
 
 A backend for a blogging platform built with Node.js, TypeScript, and MongoDB. This project supports secure user authentication, role-based access control, and a public API for reading blogs with search, sort, and filter functionalities. It also provides users and admins with different sets of permissions and CRUD capabilities for managing blogs.
 
