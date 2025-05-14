@@ -3,7 +3,7 @@ import { Blog } from '../blogs/blog.model';
 import { IComment } from './comment.interface';
 import mongoose from 'mongoose';
 
-const createComment = async (payload: IComment): Promise<IComment> => {
+const createComment = async (payload: IComment)=> {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
@@ -26,7 +26,7 @@ const createComment = async (payload: IComment): Promise<IComment> => {
   }
 };
 
-const getCommentsByBlog = async (blogId: string): Promise<IComment[]> => {
+const getCommentsByBlog = async (blogId: string)=> {
   return await Comment.find({ blog: blogId }).populate('user', 'name profileImageUrl');
 };
 
@@ -37,7 +37,7 @@ const updateComment = async (
   return await Comment.findByIdAndUpdate(commentId, payload, { new: true });
 };
 
-const deleteComment = async (commentId: string): Promise<IComment | null> => {
+const deleteComment = async (commentId: string) => {
   const comment = await Comment.findByIdAndDelete(commentId);
 
   if (comment) {
